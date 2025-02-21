@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Activity {
+  id                         String    @id
+  activityTitle              String
+  description                String?
+  userId                     String
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime
+  private                    Boolean   @default(true)
+  Activityphoto              String?
+  User_Activity_userIdToUser User      @relation("Activity_userIdToUser", fields: [userId], references: [id])
+  TimeLog                    TimeLog[]
+  User_ActivityMembership    User[]    @relation("ActivityMembership")
+
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model TimeLog {
+  timeLogTitle String?
+  activityId   String
+  id           String   @id
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  SessionPhoto String?
+  sessionTime  Int
+  Activity     Activity @relation(fields: [activityId], references: [id])
+
+  @@index([activityId])
+}
+
+model User {
+  id                             String     @id @default(uuid())
+  name                           String?
+  username                       String     @unique
+  password                       String
+  email                          String     @unique
+  createdAt                      DateTime   @default(now())
+  profilePhoto                   String     @default("")
+  tokenVersion                   Int        @default(0)
+  Activity_Activity_userIdToUser Activity[] @relation("Activity_userIdToUser")
+  Activity_ActivityMembership    Activity[] @relation("ActivityMembership")
+  User_A                         User[]     @relation("UserFollows")
+  User_B                         User[]     @relation("UserFollows")
+}
